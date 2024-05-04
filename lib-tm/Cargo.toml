@@ -4,5 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sysinfo = "0.30.11"
+sysinfo = { version = "0.30.11", features = ["serde", "multithread"] }
 serde = { workspace = true }
+serde_json = { workspace = true }
+libc = { version = "0.2" } # match glibc version used in sysinfo

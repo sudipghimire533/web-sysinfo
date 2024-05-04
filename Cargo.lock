@@ -632,7 +632,9 @@ checksum = "d4345964bb142484797b161f473a503a434de77149dd8c7427788c6e13379388"
 name = "lib-tm"
 version = "0.1.0"
 dependencies = [
+ "libc",
  "serde",
+ "serde_json",
  "sysinfo",
 ]
 
@@ -1064,6 +1066,7 @@ dependencies = [
  "ntapi",
  "once_cell",
  "rayon",
+ "serde",
  "windows",
 ]
 

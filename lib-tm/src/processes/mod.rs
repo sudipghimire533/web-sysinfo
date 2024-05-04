@@ -1,25 +1,59 @@
-use std::collections::HashMap;
+use serde::Serialize;
 use sysinfo::Pid;
-use sysinfo::Process;
-use serde::{Serialize, Deserialize};
 
-pub struct Processes<'s> {
-    pub sys: &'s mut sysinfo::System,
+pub struct Watcher<'a> {
+    sys: &'a mut sysinfo::System,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct AllProcessOut<'p> {
-    pub processes: &'p HashMap<Pid, Process>,
+impl<'a> Watcher<'a> {
+    pub fn new(sys: &'a mut sysinfo::System) -> Self {
+        Self { sys }
+    }
 }
 
-impl Processes<'_> {
+pub type AllProcessOut = Vec<u32>;
+pub type ProcessNameOut = Result<String, ProcessError>;
+pub type ProcessRuntimeOut = Result<u64, ProcessError>;
+
+// Error related to processes
+#[derive(Debug, Serialize)]
+pub enum ProcessError {
+    /// certain process cannot be found
+    NoProcess,
+    // Error related to serilization
+    Serilizarion(String),
+}
+
+impl Watcher<'_> {
+    fn get_process(&self, id: Pid) -> Result<&sysinfo::Process, ProcessError> {
+        self.sys.process(id).ok_or(ProcessError::NoProcess)
+    }
+
     pub fn all_processes(&mut self) -> AllProcessOut {
         // Cleanup: only refresh whats needed
         let refresh_kind = sysinfo::ProcessRefreshKind::everything();
         self.sys.refresh_processes_specifics(refresh_kind);
 
-        let processes = self.sys.processes();
+        self.sys
+            .processes()
+            .iter()
+            .map(|(id, _)| id.as_u32())
+            .collect::<Vec<_>>()
+    }
 
-        AllProcessOut { processes }
+    pub fn name(&mut self, id: Pid) -> ProcessNameOut {
+        let refresh_kind = sysinfo::ProcessRefreshKind::everything();
+        self.sys.refresh_processes_specifics(refresh_kind);
+
+        let name = self.get_process(id)?.name();
+        Ok(name.to_string())
+    }
+
+    pub fn runtime(&mut self, id: Pid) -> ProcessRuntimeOut {
+        let refresh_kind = sysinfo::ProcessRefreshKind::everything();
+        self.sys.refresh_processes_specifics(refresh_kind);
+
+        let runtime = self.get_process(id)?.run_time();
+        Ok(runtime)
     }
 }

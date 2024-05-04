@@ -8,7 +8,9 @@ mod state;
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
-            .app_data(web::Data::new(state::State::new_state()))
+            // initilize global state
+            .app_data(web::Data::new(state::State::default()))
+            //
             .service(web::scope("/v1").service(scopes::get_v1_scope()))
             // placeholder for future updates
             .service(web::scope("/v2").service(scopes::get_v2_scope()))
