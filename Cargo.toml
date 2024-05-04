@@ -10,3 +10,5 @@ members = [
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
+tracing = { version = "0.1" }
+tracing-subscriber = { version = "0.3" }

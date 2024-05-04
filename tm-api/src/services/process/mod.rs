@@ -10,7 +10,7 @@ pub fn get_scopes() -> impl HttpServiceFactory {
 
 // Get PID of all the processes running in system
 #[actix_web::get("/get-all-processes")]
-async fn get_all_processes(state: WebState<'_>) -> impl Responder {
+async fn get_all_processes(state: WebState) -> impl Responder {
     let mut sys_info = state.empty_sysinfo();
     let mut process_control = lib_tm::processes::Watcher::new(&mut sys_info);
 
@@ -22,7 +22,7 @@ async fn get_all_processes(state: WebState<'_>) -> impl Responder {
             "status": request_status.as_u16(),
             "result": {
                 "processes": all_process
-            }
+            },
         }
     ))
 }

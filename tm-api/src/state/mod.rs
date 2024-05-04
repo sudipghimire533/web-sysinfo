@@ -1,5 +1,5 @@
 /// State type that can be used in actix context
-pub type WebState<'a> = actix_web::web::Data<&'a State>;
+pub type WebState = actix_web::web::Data<State>;
 
 /// Root state type shared between all api
 pub struct State {

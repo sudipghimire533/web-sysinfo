@@ -1,4 +1,4 @@
-use actix_web::{web, App, HttpServer};
+use actix_web::{middleware::Logger, web, App, HttpServer};
 
 mod scopes;
 mod services;
@@ -6,10 +6,16 @@ mod state;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    tracing_subscriber::fmt::init();
+
     HttpServer::new(|| {
+        let app_state = state::State::default();
+
         App::new()
-            // initilize global state
-            .app_data(web::Data::new(state::State::default()))
+            // wrap log to see every request
+            .wrap(Logger::default())
+            // bind global app state
+            .app_data(web::Data::new(app_state))
             //
             .service(web::scope("/v1").service(scopes::get_v1_scope()))
             // placeholder for future updates
