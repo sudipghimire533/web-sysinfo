@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 use sysinfo::Pid;
 use sysinfo::Process;
+use serde::{Serialize, Deserialize};
 
 pub struct Processes<'s> {
     pub sys: &'s mut sysinfo::System,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct AllProcessOut<'p> {
     pub processes: &'p HashMap<Pid, Process>,
 }

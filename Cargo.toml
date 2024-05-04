@@ -5,3 +5,8 @@ members = [
   "lib-tm",
   "tm-api",
 ]
+
+[workspace.dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
