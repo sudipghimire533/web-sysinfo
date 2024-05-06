@@ -15,3 +15,14 @@ async fn get_system_specs(
     let system_specs = watcher.get_system_specs();
     OkJsonResponseResult::new(Ok(system_specs))
 }
+
+#[get("/system-stats")]
+async fn get_system_stats(
+    state: WebState,
+) -> OkJsonResponseResult<tm_system_specs::SystemStats, SystemSpecsError> {
+    let mut sysinfo = state.empty_sysinfo();
+    let mut watcher = tm_system_specs::Watcher::new(&mut sysinfo);
+
+    let system_stats = watcher.get_system_stats();
+    OkJsonResponseResult::new(Ok(system_stats))
+}
