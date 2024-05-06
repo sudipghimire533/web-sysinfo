@@ -1,26 +1,21 @@
 use crate::state::WebState;
+use crate::types::OkJsonResponseResult;
 use actix_web::web;
-use actix_web::{http::StatusCode, HttpResponseBuilder, Responder};
+use actix_web::Responder;
+use lib_tm::processes as tm_processes;
 use lib_tm::tm;
-use serde_json::json;
 
 // Get PID of all the processes running in system
 #[actix_web::get("/get-all-processes")]
-async fn get_all_processes(state: WebState) -> impl Responder {
+async fn get_all_processes(
+    state: WebState,
+) -> OkJsonResponseResult<lib_tm::processes::AllProcessOut, tm_processes::ProcessError> {
     let mut sys_info = state.empty_sysinfo();
     let mut process_control = lib_tm::processes::Watcher::new(&mut sys_info);
 
     let all_process = process_control.all_processes();
 
-    let request_status = StatusCode::OK;
-    HttpResponseBuilder::new(request_status).json(json!(
-        {
-            "status": request_status.as_u16(),
-            "result": {
-                "processes": all_process
-            },
-        }
-    ))
+    OkJsonResponseResult::new(Ok(all_process))
 }
 
 #[actix_web::get("/get-process/{process_id}")]
@@ -29,30 +24,9 @@ async fn get_process(state: WebState, process_id: web::Path<tm::ProcessId>) -> i
     let mut process_control = lib_tm::processes::Watcher::new(&mut sys_info);
 
     let pid = tm::sysinfo::Pid::from(process_id.into_inner());
-    let process_info: Result<_, anyhow::Error> = process_control.process_info(pid);
+    let process_info = process_control
+        .process_info(pid)
+        .map(|info| serde_json::json!(info));
 
-    let (status, body) = match process_info {
-        Ok(process_info) => {
-            let status = StatusCode::OK;
-            let body = serde_json::json!(
-                {
-                    "status": status.as_u16(),
-                    "result": process_info,
-                }
-            );
-            (status, body)
-        }
-        Err(err) => {
-            let status = StatusCode::BAD_REQUEST;
-            let body = serde_json::json!(
-                {
-                    "status": status.as_u16(),
-                    "error": format!("{err}"),
-                }
-            );
-            (status, body)
-        }
-    };
-
-    HttpResponseBuilder::new(status).json(body)
+    OkJsonResponseResult::<_, &'static str>::new(Ok(process_info))
 }

@@ -12,7 +12,7 @@ impl<'a> Watcher<'a> {
 }
 
 pub type AllProcessOut = Vec<Pid>;
-pub type ProcessInfoOut<'a> = anyhow::Result<&'a Process>; // ProcessError>;
+pub type ProcessInfoOut<'a> = Result<&'a Process, ProcessError>;
 pub type ProcessRuntimeOut = Result<u64, ProcessError>;
 
 // Error related to processes

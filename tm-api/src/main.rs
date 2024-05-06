@@ -3,6 +3,7 @@ use actix_web::{middleware::Logger, web, App, HttpServer};
 mod scopes;
 mod services;
 mod state;
+mod types;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
