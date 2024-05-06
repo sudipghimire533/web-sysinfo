@@ -8,3 +8,5 @@ sysinfo = { version = "0.30.11", features = ["serde", "multithread"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 libc = { version = "0.2" } # match glibc version used in sysinfo
+thiserror = { workspace = true }
+anyhow = { workspace = true }

@@ -9,3 +9,6 @@ serde_json = { workspace = true }
 lib-tm = { path = "../lib-tm" }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }

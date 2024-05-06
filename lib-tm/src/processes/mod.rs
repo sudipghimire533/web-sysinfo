@@ -1,5 +1,5 @@
 use serde::Serialize;
-use sysinfo::Pid;
+use sysinfo::{Pid, Process};
 
 pub struct Watcher<'a> {
     sys: &'a mut sysinfo::System,
@@ -11,17 +11,15 @@ impl<'a> Watcher<'a> {
     }
 }
 
-pub type AllProcessOut = Vec<u32>;
-pub type ProcessNameOut = Result<String, ProcessError>;
+pub type AllProcessOut = Vec<Pid>;
+pub type ProcessInfoOut<'a> = anyhow::Result<&'a Process>; // ProcessError>;
 pub type ProcessRuntimeOut = Result<u64, ProcessError>;
 
 // Error related to processes
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, thiserror::Error)]
 pub enum ProcessError {
-    /// certain process cannot be found
+    #[error("No process found")]
     NoProcess,
-    // Error related to serilization
-    Serilizarion(String),
 }
 
 impl Watcher<'_> {
@@ -36,17 +34,17 @@ impl Watcher<'_> {
 
         self.sys
             .processes()
-            .iter()
-            .map(|(id, _)| id.as_u32())
+            .into_iter()
+            .map(|(k, _)| k.clone())
             .collect::<Vec<_>>()
     }
 
-    pub fn name(&mut self, id: Pid) -> ProcessNameOut {
+    pub fn process_info(&mut self, id: Pid) -> ProcessInfoOut {
         let refresh_kind = sysinfo::ProcessRefreshKind::everything();
         self.sys.refresh_processes_specifics(refresh_kind);
 
-        let name = self.get_process(id)?.name();
-        Ok(name.to_string())
+        let info = self.get_process(id)?;
+        Ok(info)
     }
 
     pub fn runtime(&mut self, id: Pid) -> ProcessRuntimeOut {
