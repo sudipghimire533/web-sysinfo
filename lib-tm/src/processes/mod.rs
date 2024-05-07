@@ -13,7 +13,6 @@ impl<'a> Watcher<'a> {
 
 pub type AllProcessOut = Vec<Pid>;
 pub type ProcessInfoOut<'a> = Result<&'a Process, ProcessError>;
-pub type ProcessRuntimeOut = Result<u64, ProcessError>;
 
 // Error related to processes
 #[derive(Debug, Serialize, thiserror::Error)]
@@ -45,13 +44,5 @@ impl Watcher<'_> {
 
         let info = self.get_process(id)?;
         Ok(info)
-    }
-
-    pub fn runtime(&mut self, id: Pid) -> ProcessRuntimeOut {
-        let refresh_kind = sysinfo::ProcessRefreshKind::everything();
-        self.sys.refresh_processes_specifics(refresh_kind);
-
-        let runtime = self.get_process(id)?.run_time();
-        Ok(runtime)
     }
 }
