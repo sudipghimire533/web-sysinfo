@@ -2,12 +2,12 @@ use serde::Serialize;
 
 #[derive(Debug)]
 pub struct Watcher<'a> {
-    sysinfo: &'a mut sysinfo::System,
+    sys: &'a mut sysinfo::System,
 }
 
 impl<'a> Watcher<'a> {
     pub fn new(sysinfo: &'a mut sysinfo::System) -> Self {
-        Self { sysinfo }
+        Self { sys: sysinfo }
     }
 }
 
@@ -43,7 +43,10 @@ pub struct SystemStats {
 
 impl Watcher<'_> {
     pub fn get_system_specs(&mut self) -> SystemSpecs {
-        let sysinfo = &self.sysinfo;
+        let refresh_kind = sysinfo::ProcessRefreshKind::everything();
+        self.sys.refresh_processes_specifics(refresh_kind);
+
+        let sysinfo = &self.sys;
         let cpu = sysinfo.global_cpu_info();
         SystemSpecs {
             available_memory: sysinfo.available_memory(),
@@ -62,7 +65,10 @@ impl Watcher<'_> {
     }
 
     pub fn get_system_stats(&mut self) -> SystemStats {
-        let sysinfo = &self.sysinfo;
+        let refresh_kind = sysinfo::ProcessRefreshKind::everything();
+        self.sys.refresh_processes_specifics(refresh_kind);
+
+        let sysinfo = &self.sys;
         let cpu = sysinfo.global_cpu_info();
         SystemStats {
             boot_time: sysinfo::System::boot_time(),
