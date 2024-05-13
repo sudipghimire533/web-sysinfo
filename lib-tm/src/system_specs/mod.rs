@@ -12,8 +12,26 @@ impl<'a> Watcher<'a> {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DiskSpecs {
+    pub name: String,
+    pub total_space: u64,
+    pub available_space: u64,
+    pub file_system: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CpuSepcs {
+    pub brand: String,
+    pub name: String,
+    pub vendor_id: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SystemSpecs {
-    pub available_memory: u64,
+    pub total_memory: u64,
     pub total_swap: u64,
     pub system_name: Option<String>,
     pub kernel_version: Option<String>,
@@ -21,10 +39,9 @@ pub struct SystemSpecs {
     pub long_os_version: Option<String>,
     pub distribution_id: String,
     pub cpu_arch: Option<String>,
-    pub cpu_vendor_id: String,
-    pub cpu_name: String,
-    pub cpu_brand: String,
     pub physical_core_count: Option<usize>,
+    pub cpus_info: Vec<CpuSepcs>,
+    pub disks_info: Vec<DiskSpecs>,
 }
 
 #[derive(Debug, Serialize)]
@@ -43,13 +60,12 @@ pub struct SystemStats {
 
 impl Watcher<'_> {
     pub fn get_system_specs(&mut self) -> SystemSpecs {
-        let refresh_kind = sysinfo::ProcessRefreshKind::everything();
-        self.sys.refresh_processes_specifics(refresh_kind);
+        let refresh_kind = sysinfo::RefreshKind::everything();
+        self.sys.refresh_specifics(refresh_kind);
 
         let sysinfo = &self.sys;
-        let cpu = sysinfo.global_cpu_info();
         SystemSpecs {
-            available_memory: sysinfo.available_memory(),
+            total_memory: sysinfo.total_memory(),
             total_swap: sysinfo.total_swap(),
             system_name: sysinfo::System::host_name(),
             kernel_version: sysinfo::System::kernel_version(),
@@ -57,10 +73,29 @@ impl Watcher<'_> {
             long_os_version: sysinfo::System::long_os_version(),
             distribution_id: sysinfo::System::distribution_id(),
             cpu_arch: sysinfo::System::cpu_arch(),
-            cpu_brand: cpu.brand().to_string(),
-            cpu_vendor_id: cpu.vendor_id().to_string(),
-            cpu_name: cpu.name().to_string(),
             physical_core_count: sysinfo.physical_core_count(),
+            cpus_info: sysinfo
+                .cpus()
+                .iter()
+                .map(|cpu| CpuSepcs {
+                    brand: cpu.brand().to_string(),
+                    name: cpu.name().to_string(),
+                    vendor_id: cpu.vendor_id().to_string(),
+                })
+                .collect(),
+            disks_info: sysinfo::Disks::new_with_refreshed_list()
+                .list()
+                .iter()
+                .filter_map(|disk| match disk.kind() {
+                    sysinfo::DiskKind::HDD | sysinfo::DiskKind::SSD => Some(DiskSpecs {
+                        name: disk.name().to_string_lossy().to_string(),
+                        total_space: disk.total_space(),
+                        available_space: disk.available_space(),
+                        file_system: disk.file_system().to_string_lossy().to_string(),
+                    }),
+                    sysinfo::DiskKind::Unknown(_) => None,
+                })
+                .collect(),
         }
     }
 

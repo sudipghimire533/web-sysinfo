@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title></title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="tailwind-full.css" rel="stylesheet" />
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="libtm.js"></script>
+    <script src="index.js"></script>
+    <script src="systemInfo.js"></script>
+  </head>
+  <body onload="onload()">
+    <p>Icon: <span id="systemInfo.icon"></span></p>
+    <p>systemName: <span id="systemInfo.systemName"></span></p>
+
+    <p>host.osName: <span id="systemInfo.host.osName"></span></p>
+    <p>host.kernel: <span id="systemInfo.host.kernel"></span></p>
+    <p>host.desktop: <span id="systemInfo.host.desktop"></span></p>
+
+    <p>hardware.graphics: <span id="systemInfo.hardware.graphics"></span></p>
+    <p>hardware.memory: <span id="systemInfo.hardware.memory"></span></p>
+    <p>hardware.processor: <span id="systemInfo.hardware.processor"></span></p>
+
+    <p>
+      systemStatus.availableDiskSpace:
+      <span id="systemInfo.systemStatus.availableDiskSpace"></span>
+    </p>
+  </body>
+</html>

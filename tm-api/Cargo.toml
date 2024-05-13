@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 actix-web = { version = "4" }
+actix-cors = { version = "0.7" }
 serde_json = { workspace = true }
 lib-tm = { path = "../lib-tm" }
 tracing = { workspace = true }

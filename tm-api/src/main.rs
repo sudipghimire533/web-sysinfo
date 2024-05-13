@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 
 mod scopes;
@@ -10,9 +11,17 @@ async fn main() -> std::io::Result<()> {
     tracing_subscriber::fmt::init();
 
     HttpServer::new(|| {
+        // TODO: only for development environment
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_method()
+            .allow_any_header();
+
         let app_state = state::State::default();
 
         App::new()
+            // modified cors
+            .wrap(cors)
             // wrap log to see every request
             .wrap(Logger::default())
             // bind global app state
